@@ -6,7 +6,7 @@ from time import sleep
 from tempfile import mkdtemp
 from uuid import uuid1
 from datetime import datetime
-
+from random import randint
 
 TEST_DATA_FILE_PATH = "resources/test_data.txt"
 
@@ -16,7 +16,6 @@ def create_file(input_dir_path, dir_pattern, temp_dir_path, num_of_lines, data_l
     temp_file_path = temp_dir_path + "/" + file_name
     with open(temp_file_path, "w") as fw:
         for idx in range(num_of_lines):
-            from random import randint
             fw.write(data_lines[randint(0, len(data_lines) - 1)] + "\n")
     cur_datetime = datetime.utcnow()
     target_dir = input_dir_path + "/" + cur_datetime.strftime(dir_pattern)
