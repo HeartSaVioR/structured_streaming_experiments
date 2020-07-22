@@ -45,9 +45,14 @@ if __name__ == "__main__":
 
     spark.sql("""
         CREATE TABLE IF NOT EXISTS {} (
-            value string COMMENT 'content'
+            `value` string COMMENT 'content',
+            topic string COMMENT 'topic',
+            partition int COMMENT 'partition',
+            offset long COMMENT 'offset',
+            `timestamp` timestamp COMMENT 'timestamp'
         )
         USING iceberg
+        PARTITIONED BY (topic, partition)
         """.format(table_name))
 
     df = spark \
@@ -64,7 +69,7 @@ if __name__ == "__main__":
         df = df.repartition(output_partition_num)
 
     query = df \
-        .selectExpr("CAST(value AS string)") \
+        .selectExpr("CAST(value AS string)", "topic", "partition", "offset", "timestamp") \
         .writeStream \
         .format("iceberg") \
         .outputMode("append") \
