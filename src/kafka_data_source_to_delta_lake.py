@@ -60,7 +60,7 @@ if __name__ == "__main__":
         .outputMode("append") \
         .trigger(processingTime="%d seconds" % trigger_interval_secs) \
         .option("checkpointLocation", checkpoint_path) \
-        .start(queryName='SS-kafka-datasource-delta-lake-sink-experiment')
+        .start(path=output_path, queryName='SS-kafka-datasource-delta-lake-sink-experiment')
 
     query.awaitTermination()
 
