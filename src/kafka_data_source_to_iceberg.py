@@ -64,6 +64,7 @@ if __name__ == "__main__":
         df = df.repartition(output_partition_num)
 
     query = df \
+        .select("value") \
         .writeStream \
         .format("iceberg") \
         .outputMode("append") \
