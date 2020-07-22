@@ -54,7 +54,7 @@ if __name__ == "__main__":
         df = df.repartition(output_partition_num)
 
     query = df \
-        .select("value") \
+        .selectExpr("CAST(value AS string)") \
         .writeStream \
         .format("delta") \
         .outputMode("append") \
