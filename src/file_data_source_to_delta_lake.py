@@ -19,7 +19,7 @@ if __name__ == "__main__":
     print("=" * 40)
     print("Input path: %s" % input_path)
     print("Max files in batch: %s" % max_files_in_batch)
-    print("Output path: %s" % output_path)
+    print("output path: %s" % output_path)
     print("Checkpoint path: %s" % checkpoint_path)
     print("Trigger interval: %s" % trigger_interval_secs)
     print("Number of output partitions: %s" % output_partition_num)
@@ -27,7 +27,9 @@ if __name__ == "__main__":
 
     spark = SparkSession \
         .builder \
-        .appName("SSFileDataSource") \
+        .appName("SSFileDataSourceWithDeltaLakeSink") \
+        .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension") \
+        .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog") \
         .getOrCreate()
 
     df = spark \
@@ -42,12 +44,11 @@ if __name__ == "__main__":
 
     query = df \
         .writeStream \
-        .format("text") \
+        .format("delta") \
         .outputMode("append") \
         .trigger(processingTime="%d seconds" % trigger_interval_secs) \
-        .option("path", output_path) \
         .option("checkpointLocation", checkpoint_path) \
-        .start(queryName='SS-file-datasource-experiment')
+        .start(path=output_path, queryName='SS-file-datasource-delta-lake-sink-experiment')
 
     query.awaitTermination()
 
