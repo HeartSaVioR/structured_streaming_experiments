@@ -39,7 +39,7 @@ if __name__ == "__main__":
     spark.sql("""
         CREATE TABLE IF NOT EXISTS {} (
             `timestamp` timestamp COMMENT 'timestamp',
-            `value` long COMMENT 'content',
+            `value` long COMMENT 'content'
         )
         USING iceberg
         """.format(table_name))

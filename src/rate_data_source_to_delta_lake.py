@@ -38,7 +38,7 @@ if __name__ == "__main__":
     spark.sql("""
         CREATE TABLE IF NOT EXISTS {} (
             `timestamp` timestamp COMMENT 'timestamp',
-            `value` string COMMENT 'content',
+            `value` string COMMENT 'content'
         )
         USING delta
         LOCATION '{}'
