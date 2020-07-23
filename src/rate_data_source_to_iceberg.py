@@ -47,7 +47,7 @@ if __name__ == "__main__":
     df = spark \
         .readStream \
         .format("rate") \
-        .option("rowsPerSecond") \
+        .option("rowsPerSecond", input_records_per_second) \
         .load()
 
     if output_partition_num > 0:
