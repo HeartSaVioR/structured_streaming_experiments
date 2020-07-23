@@ -54,7 +54,7 @@ if __name__ == "__main__":
         df = df.repartition(output_partition_num)
 
     query = df \
-        .selectExpr("value", "timestamp") \
+        .selectExpr("timestamp", "value") \
         .writeStream \
         .format("iceberg") \
         .outputMode("append") \
