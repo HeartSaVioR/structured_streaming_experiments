@@ -5,9 +5,9 @@ from pyspark.sql import SparkSession
 import sys
 
 if __name__ == "__main__":
-    if len(sys.argv) < 9:
+    if len(sys.argv) < 10:
         print("USAGE: %s [input kafka_bootstrap_servers] [subscribe] [startingOffsets] " +
-              "[max_offsets_in_batch] [output_path] [checkpoint_path] " +
+              "[max_offsets_in_batch] [output_path] [table_name] [checkpoint_path] " +
               "[trigger_interval_secs] [output_partition_num]")
         sys.exit(1)
 
@@ -17,10 +17,11 @@ if __name__ == "__main__":
     max_offsets_in_batch = int(sys.argv[4])
 
     output_path = sys.argv[5]
+    table_name = sys.argv[6]
 
-    checkpoint_path = sys.argv[6]
-    trigger_interval_secs = int(sys.argv[7])
-    output_partition_num = int(sys.argv[8])
+    checkpoint_path = sys.argv[7]
+    trigger_interval_secs = int(sys.argv[8])
+    output_partition_num = int(sys.argv[9])
 
     print("=" * 40)
     print("Input Kafka bootstrap servers: %s" % input_kafka_bootstrap_servers)
@@ -28,6 +29,7 @@ if __name__ == "__main__":
     print("Input Kafka starting offsets: %s" % input_kafka_starting_offsets)
     print("Max offsets in batch: %s" % max_offsets_in_batch)
     print("Output path: %s" % output_path)
+    print("Table name: %s" % table_name)
     print("Checkpoint path: %s" % checkpoint_path)
     print("Trigger interval: %s" % trigger_interval_secs)
     print("Number of output partitions: %s" % output_partition_num)
@@ -39,6 +41,19 @@ if __name__ == "__main__":
         .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension") \
         .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog") \
         .getOrCreate()
+
+    spark.sql("""
+        CREATE TABLE IF NOT EXISTS {} (
+            `value` string COMMENT 'content',
+            topic string COMMENT 'topic',
+            partition int COMMENT 'partition',
+            offset long COMMENT 'offset',
+            `timestamp` timestamp COMMENT 'timestamp'
+        )
+        USING delta
+        PARTITIONED BY (topic, partition)
+        LOCATION '{}'
+        """.format(table_name, output_path))
 
     df = spark \
         .readStream \
