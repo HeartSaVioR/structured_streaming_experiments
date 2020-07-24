@@ -53,6 +53,7 @@ if __name__ == "__main__":
         )
         USING iceberg
         PARTITIONED BY (topic, partition)
+        TBLPROPERTIES ('write.metadata.delete-after-commit.enabled'='true')
         """.format(table_name))
 
     df = spark \

@@ -42,6 +42,7 @@ if __name__ == "__main__":
             `value` long COMMENT 'content'
         )
         USING iceberg
+        TBLPROPERTIES ('write.metadata.delete-after-commit.enabled'='true')
         """.format(table_name))
 
     df = spark \
