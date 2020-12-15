@@ -4,52 +4,29 @@ from pyspark.sql import SparkSession
 
 import sys
 
-from src.datasources.file.file_sink import init_file_sink
-from src.datasources.file.file_source import init_file_source
-from src.datasources.iceberg import init_iceberg_sink
-from src.datasources.kafka import init_kafka_sink
-from src.datasources.kafka.kafka_source import init_kafka_source
-from src.datasources.rate import init_rate_source
-
-SOURCE_FUNCTION_MAP = {
-    "file": init_file_source,
-    "kafka": init_kafka_source,
-    "rate": init_rate_source
-}
-
-SINK_FUNCTION_MAP = {
-    "file": init_file_sink,
-    "kafka": init_kafka_sink,
-    "iceberg": init_iceberg_sink
-}
+from datasources import lookup_data_source
 
 
-def lookup_source_function(source):
-    try:
-        return SOURCE_FUNCTION_MAP[source]
-    except KeyError:
-        print("Error: %s unsupported in source" % source, file=sys.stderr)
-        exit(2)
-
-
-def lookup_sink_function(sink):
-    try:
-        return SINK_FUNCTION_MAP[sink]
-    except KeyError:
-        print("Error: %s unsupported in sink" % sink, file=sys.stderr)
-        exit(2)
-
-
-def read_args():
-    args = sys.argv
+def read_args(args):
     args_with_long_option = [x for x in args if x.startswith("--")]
     args_remove_long_option = [x[len("--"):] for x in args_with_long_option]
-    options_list = [tuple(x.split("=")) for x in args_remove_long_option]
+    options_list = [(x.split("=")[0], "=".join(x.split("=")[1:])) for x in args_remove_long_option]
     return {k: v for k, v in options_list}
 
 
-def main():
-    options = read_args()
+def extract_options(options, prefix):
+    return {k[len(prefix):]: v for k, v in options.items() if k.startswith(prefix)}
+
+
+def print_usage_data_source(data_source_instance):
+    print("Usage of data source %s" % data_source_instance.format())
+    print("=" * 50)
+    print(data_source_instance.usage())
+    print("=" * 50)
+
+
+def main(args):
+    options = read_args(args)
 
     print("=" * 50)
     print("Options provided:")
@@ -70,11 +47,17 @@ def main():
         .appName(app_name) \
         .getOrCreate()
 
-    source_init_fn = lookup_source_function(source)
-    sink_init_fn = lookup_sink_function(sink)
+    source_instance = lookup_data_source(source)
+    sink_instance = lookup_data_source(sink)
 
-    data_frame = source_init_fn(spark, options)
-    writer_builder = sink_init_fn(data_frame, options)
+    print_usage_data_source(source_instance)
+    print_usage_data_source(sink_instance)
+
+    source_options = extract_options(options, "source-option-")
+    sink_options = extract_options(options, "sink-option-")
+
+    data_frame = source_instance.init_source(spark, source_options)
+    writer_builder = sink_instance.init_sink(data_frame, sink_options)
 
     output_mode = options.get("output-mode", "append")
     trigger_interval_secs = options.get("trigger-interval-secs", 0)
