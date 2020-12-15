@@ -2,7 +2,7 @@
 
 import sys
 from time import sleep, time
-from kafka import KafkaProducer
+from src.datasources.kafka import KafkaProducer
 from random import randint
 
 TEST_DATA_FILE_PATH = "resources/test_data.txt"
