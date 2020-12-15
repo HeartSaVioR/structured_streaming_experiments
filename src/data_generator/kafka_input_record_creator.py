@@ -24,7 +24,7 @@ if __name__ == "__main__":
     print("=" * 40)
 
     with open(TEST_DATA_FILE_PATH, "r") as fr:
-        data_lines = map(lambda x: x.strip(), fr.readlines())
+        data_lines = [x.strip() for x in fr.readlines()]
         producer = KafkaProducer(bootstrap_servers=kafka_bootstrap_servers, value_serializer=str.encode)
 
         while True:

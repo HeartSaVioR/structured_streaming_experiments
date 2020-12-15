@@ -26,9 +26,10 @@ def create_file(input_dir_path, dir_pattern, temp_dir_path, num_of_lines, data_l
     os.rename(temp_file_path, target_file_path)
 
 
-if __name__ == "__main__":
+def main():
     if len(sys.argv) < 5:
-        print("USAGE: %s [input_dir_path][dir_pattern (follow the format of datetime)][seconds per file][lines per file]" % sys.argv[0])
+        print("USAGE: %s [input_dir_path][dir_pattern (follow the format of datetime)]"
+              "[seconds per file][lines per file]" % sys.argv[0])
         sys.exit(1)
 
     input_dir_path = sys.argv[1]
@@ -44,8 +45,12 @@ if __name__ == "__main__":
     print("=" * 40)
 
     with open(TEST_DATA_FILE_PATH, "r") as fr:
-        data_lines = map(lambda x: x.strip(), fr.readlines())
+        data_lines = [x.strip() for x in fr.readlines()]
 
         while True:
             create_file(input_dir_path, dir_pattern, temp_dir_path, lines_per_file, data_lines)
             sleep(seconds_per_file)
+
+
+if __name__ == "__main__":
+    main()
