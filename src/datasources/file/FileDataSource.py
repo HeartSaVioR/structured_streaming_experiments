@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from pyspark.sql.types import StructType, StructField, StringType, LongType
+
+from pyspark.sql.types import StructType
 
 from datasources.BaseDataSource import BaseDataSource
 

@@ -12,7 +12,6 @@ def main():
         sys.exit(2)
 
     main_job = args[1]
-
     new_args = args[2:]
 
     # TODO: can we make this be dynamic?

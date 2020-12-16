@@ -6,6 +6,7 @@ def init_kafka_sink(data_frame, options):
     # TODO: more options?
 
     return data_frame \
+        .selectExpr("to_json(*) as value") \
         .writeStream \
         .format("kafka") \
         .option("kafka.bootstrap.servers", bootstrap_servers) \

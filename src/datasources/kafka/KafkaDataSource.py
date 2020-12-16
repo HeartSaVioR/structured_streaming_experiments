@@ -14,7 +14,7 @@ class KafkaDataSource(BaseDataSource):
         bootstrap_servers = options["bootstrap-servers"]
         subscribe = options["subscribe"]
         starting_offsets = options["starting-offsets"]
-        fail_on_data_loss = options["fail-on-data-loss"]
+        fail_on_data_loss = options.get("fail-on-data-loss", "true")
 
         return spark_session \
             .readStream \
@@ -26,25 +26,28 @@ class KafkaDataSource(BaseDataSource):
             .load()
 
     def init_sink(self, data_frame, options):
-        sink_format = options.get("format", "text")
-        output_path = options["path"]
+        bootstrap_servers = options["bootstrap-servers"]
+        topic = options["topic"]
 
         return data_frame \
+            .selectExpr("to_json(struct(*)) as value") \
             .writeStream \
-            .format(sink_format) \
-            .option("path", output_path)
+            .format("kafka") \
+            .option("kafka.bootstrap.servers", bootstrap_servers) \
+            .option("topic", topic)
 
     def usage(self):
         usage = '''
         SOURCE
         ======
-        path (required)
-        max-files-per-trigger (require)
-        format (option, default value: text)
+        bootstrap-servers (required)
+        subscribe (required)
+        starting-offsets (required)
+        fail-on-data-loss (optional, default value: true)
         
         SINK
         ====
-        path (required)
-        format (option, default value: text)
+        bootstrap-servers (required)
+        topic (required)
         '''
         return dedent(usage)
