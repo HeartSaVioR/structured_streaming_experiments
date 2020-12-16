@@ -6,6 +6,9 @@ This repository contains some implementations of streaming queries to experiment
 
 Prerequisite: `python`, `pip` and `virtualenv` should be installed in prior.
 
+PySpark is set to 3.0.1, but the code doesn't have 3.0 specific logic (AFAIK), so you can try changing the dependency
+and rebuild for other Spark versions. 
+
 ```
 make clean
 make all
