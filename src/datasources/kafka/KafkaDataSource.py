@@ -16,25 +16,44 @@ class KafkaDataSource(BaseDataSource):
         starting_offsets = options["starting-offsets"]
         fail_on_data_loss = options.get("fail-on-data-loss", "true")
 
-        return spark_session \
+        kafka_options = {
+            key[len("kafka-option-"):]: value for key, value in options.items()
+            if key.startswith("kafka-option-")
+        }
+
+        source = spark_session \
             .readStream \
             .format("kafka") \
             .option("kafka.bootstrap.servers", bootstrap_servers) \
             .option("subscribe", subscribe) \
             .option("startingOffsets", starting_offsets) \
-            .option("failOnDataLoss", fail_on_data_loss) \
-            .load()
+            .option("failOnDataLoss", fail_on_data_loss)
+
+        for key, value in kafka_options.items():
+            source = source.option("kafka." + key, value)
+
+        return source.load()
 
     def init_sink(self, data_frame, options):
         bootstrap_servers = options["bootstrap-servers"]
         topic = options["topic"]
 
-        return data_frame \
+        kafka_options = {
+            key[len("kafka-option-"):]: value for key, value in options.items()
+            if key.startswith("kafka-option-")
+        }
+
+        sink = data_frame \
             .selectExpr("to_json(struct(*)) as value") \
             .writeStream \
             .format("kafka") \
             .option("kafka.bootstrap.servers", bootstrap_servers) \
             .option("topic", topic)
+
+        for key, value in kafka_options.items():
+            sink = sink.option("kafka." + key, value)
+
+        return sink
 
     def usage(self):
         usage = '''
@@ -44,10 +63,12 @@ class KafkaDataSource(BaseDataSource):
         subscribe (required)
         starting-offsets (required)
         fail-on-data-loss (optional, default value: true)
+        kafka-option-[option-name] ("option-name" will be provided as "kafka.option-name", multiple options can be specified)
         
         SINK
         ====
         bootstrap-servers (required)
         topic (required)
+        kafka-option-[option-name] ("option-name" will be provided as "kafka.option-name", multiple options can be specified)
         '''
         return dedent(usage)
