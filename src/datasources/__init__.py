@@ -8,6 +8,7 @@ from datasources.file import FileDataSource
 from datasources.iceberg import IcebergDataSource
 from datasources.kafka import KafkaDataSource
 from datasources.rate import RateDataSource
+from datasources.console import ConsoleDataSource
 
 
 def lookup_data_source(data_source_format):

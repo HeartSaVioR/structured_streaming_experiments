@@ -2,7 +2,7 @@
 
 import sys
 
-from executions import simple_query_executor
+from executions import simple_query_executor, wordcount_query_executor
 
 
 def main():
@@ -17,6 +17,8 @@ def main():
     # TODO: can we make this be dynamic?
     if main_job == "simple_query":
         simple_query_executor.main(new_args)
+    elif main_job == "wordcount_query":
+        wordcount_query_executor.main(new_args)
     else:
         print("Unsupported main job \"%s\"" % main_job)
         sys.exit(2)
