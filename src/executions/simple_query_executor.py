@@ -88,7 +88,7 @@ def main(args):
     writer_builder = sink_instance.init_sink(data_frame, sink_options)
 
     output_mode = options.get("output-mode", "append")
-    trigger_interval_secs = options.get("trigger-interval-secs", 0)
+    trigger_interval_secs = int(options.get("trigger-interval-secs", 0))
     checkpoint_location = options["checkpoint-location"]
 
     query = writer_builder \
